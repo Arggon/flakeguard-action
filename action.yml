@@ -24,24 +24,6 @@ inputs:
     default: 'flakeguard-report'
 
 runs:
-    description: Number of same-commit workflow runs to compare (1-10).
-    required: false
-    default: '2'
-  token:
-    description: Read-only token used to list runs and download artifacts.
-    required: false
-    default: ${{ github.token }}
-  report-dir:
-    description: Relative directory for flakeguard-report.json and flakeguard-report.md.
-    required: false
-    default: 'flakeguard-report'
-
-outputs:
-  flaky-count:
-    description: Number of tests classified flaky.
-    value: ${{ steps.flakeguard.outputs.flaky-count }}
-
-runs:
   using: composite
   steps:
     - name: Read JUnit artifacts and build the report
