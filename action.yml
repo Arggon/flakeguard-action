@@ -1,0 +1,55 @@
+name: FlakeGuard
+description: Flaky-test detection for GitHub Actions — internal prototype. Reports same-commit pass/fail evidence for JUnit artifacts.
+author: flakeguard
+branding:
+  icon: alert-triangle
+  color: orange
+
+inputs:
+  artifact-pattern:
+    description: Artifact name pattern to read (only `*` wildcards are supported).
+    required: false
+    default: 'junit*'
+  lookback-runs:
+    description: Number of same-commit workflow runs to compare (1-10).
+    required: false
+    default: '2'
+  token:
+    description: Read-only token used to list runs and download artifacts.
+    required: false
+    default: ${{ github.token }}
+  report-dir:
+    description: Relative directory for flakeguard-report.json and flakeguard-report.md.
+    required: false
+    default: 'flakeguard-report'
+
+runs:
+    description: Number of same-commit workflow runs to compare (1-10).
+    required: false
+    default: '2'
+  token:
+    description: Read-only token used to list runs and download artifacts.
+    required: false
+    default: ${{ github.token }}
+  report-dir:
+    description: Relative directory for flakeguard-report.json and flakeguard-report.md.
+    required: false
+    default: 'flakeguard-report'
+
+outputs:
+  flaky-count:
+    description: Number of tests classified flaky.
+    value: ${{ steps.flakeguard.outputs.flaky-count }}
+
+runs:
+  using: composite
+  steps:
+    - name: Read JUnit artifacts and build the report
+      id: flakeguard
+      shell: bash
+      run: node "$GITHUB_ACTION_PATH/action-dist/action/cli.js"
+      env:
+        INPUT_ARTIFACT_PATTERN: ${{ inputs.artifact-pattern }}
+        INPUT_LOOKBACK_RUNS: ${{ inputs.lookback-runs }}
+        INPUT_TOKEN: ${{ inputs.token }}
+        INPUT_REPORT_DIR: ${{ inputs.report-dir }}
