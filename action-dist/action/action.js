@@ -30,6 +30,15 @@ async function selectRuns(reader, inputs) {
 function summaryMarkdown(result, reportDir, runsCompared) {
     const flaky = result.findings.filter((finding) => finding.classification === 'flaky');
     const flakyLine = flaky.length === 0 ? 'No flaky tests in the observed runs.' : flaky.map((finding) => `\`${finding.testId}\``).join(', ');
+    const newFindings = result.findings.filter((finding) => finding.classification === 'new');
+    const newLine = newFindings.length === 0
+        ? 'None.'
+        : newFindings
+            .map((finding) => {
+            const observed = finding.observations.filter((observation) => observation.status !== 'skipped');
+            return `\`${finding.testId}\` (${observed.map((observation) => observation.status).join('/')})`;
+        })
+            .join(', ');
     return [
         `## FlakeGuard — ${result.repository}@${result.commitSha}`,
         '',
@@ -40,6 +49,8 @@ function summaryMarkdown(result, reportDir, runsCompared) {
         `| ${result.summary.flaky} | ${result.summary.broken} | ${result.summary.stable} | ${result.summary.new} | ${result.summary.excludedSkipped} |`,
         '',
         `**Flaky:** ${flakyLine}`,
+        '',
+        `**New (single observation, status shown):** ${newLine}`,
         '',
         `Report: \`${reportDir}/flakeguard-report.json\` and \`${reportDir}/flakeguard-report.md\`.`,
         '',

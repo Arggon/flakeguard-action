@@ -39,7 +39,7 @@ export function toMarkdownReport(result) {
         '|---|---|---|---|---|---|',
         `| ${result.summary.tests} | ${result.summary.flaky} | ${result.summary.broken} | ${result.summary.stable} | ${result.summary.new} | ${result.summary.excludedSkipped} |`,
         '',
-        ...section('Flaky tests (same commit, pass and non-pass)', byClassification('flaky')),
+        ...section('Flaky tests (conflicting outcomes or a retried pass)', byClassification('flaky')),
         ...section('Broken tests (consistent failure, not flaky)', byClassification('broken')),
         '## Stable tests',
         '',
@@ -54,7 +54,7 @@ export function toMarkdownReport(result) {
         byClassification('new').length === 0
             ? 'None.'
             : byClassification('new')
-                .map((finding) => `- \`${finding.testId}\``)
+                .map((finding) => `- \`${finding.testId}\` — observed ${formatEvidence(finding)}`)
                 .join('\n'),
         '',
         '## Excluded from evidence',

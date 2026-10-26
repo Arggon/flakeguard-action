@@ -64,13 +64,20 @@ export function mergeByRun(artifacts) {
             existing.dialect = 'junit';
         }
         for (const outcome of artifact.outcomes) {
-            if (!existing.outcomes.has(outcome.testId))
-                existing.outcomes.set(outcome.testId, outcome);
+            let perTest = existing.outcomes.get(outcome.testId);
+            if (perTest === undefined) {
+                perTest = new Map();
+                existing.outcomes.set(outcome.testId, perTest);
+            }
+            const retryClass = outcome.status === 'passed' && outcome.retryCount > 0 ? 'retried-pass' : outcome.status;
+            const key = `${outcome.status}:${retryClass}`;
+            if (!perTest.has(key))
+                perTest.set(key, outcome);
         }
     }
     return [...merged.values()].map((value) => ({
         metadata: value.metadata,
         dialect: value.dialect,
-        outcomes: [...value.outcomes.values()],
+        outcomes: [...[...value.outcomes.values()].flatMap((perTest) => [...perTest.values()])],
     }));
 }
