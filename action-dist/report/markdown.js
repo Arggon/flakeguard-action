@@ -1,3 +1,4 @@
+import { REPORT_LIMITATIONS } from './json.js';
 function escapeCell(value) {
     return value.replace(/\|/g, '\\|');
 }
@@ -6,7 +7,8 @@ function formatEvidence(finding) {
         .map((observation) => {
         const retry = observation.retryCount > 0 ? `, ${observation.retryCount} retr${observation.retryCount === 1 ? 'y' : 'ies'}` : '';
         const category = observation.failureCategory !== null ? `, ${observation.failureCategory}` : '';
-        return `${observation.runId}: ${observation.status}${category}${retry}`;
+        const duration = observation.durationMs !== null ? `, ${observation.durationMs} ms` : '';
+        return `${observation.runId}: ${observation.status}${category}${retry}${duration}`;
     })
         .join('; ');
 }
@@ -20,7 +22,7 @@ function section(title, findings) {
     return [
         `## ${title}`,
         '',
-        '| Test | Runs | Passes | Retries | Failures | Categories | Evidence |',
+        '| Test | Observations | Passes | Retries | Failures | Categories | Evidence |',
         '|---|---|---|---|---|---|---|',
         ...findings.map(findingRow),
         '',
@@ -65,8 +67,10 @@ export function toMarkdownReport(result) {
         '',
         '---',
         '',
-        'Report version 1. Only test metadata is reported: repository, commit SHA, test identity, status,',
+        'Report version 2. Only test metadata is reported: repository, commit SHA, test identity, status,',
         'duration, retry count, and coarse failure category. No logs, source, secrets, or PII.',
+        '',
+        ...REPORT_LIMITATIONS.map((limitation) => `Limitation: ${limitation}`),
         '',
     ];
     return lines.join('\n');

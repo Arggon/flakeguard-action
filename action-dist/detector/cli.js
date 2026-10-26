@@ -4,6 +4,7 @@ import { MalformedArtifactError, parseArtifactFile } from '../parser/index.js';
 import { toJsonReport } from '../report/json.js';
 import { toMarkdownReport } from '../report/markdown.js';
 import { classifyArtifacts } from './classify.js';
+import { mergeByRun } from './merge.js';
 import { DetectionError } from './errors.js';
 const USAGE = 'usage: flakeguard-detector --artifact <junit.xml> --metadata <metadata.json> [--artifact ... --metadata ...] [--format json|markdown]\n';
 function parseArguments(argv) {
@@ -80,7 +81,7 @@ async function main(argv) {
         for (const pair of args.artifacts) {
             artifacts.push(await parseArtifactFile(pair.xml, pair.metadata));
         }
-        const result = classifyArtifacts(artifacts);
+        const result = classifyArtifacts(mergeByRun(artifacts));
         if (args.format === 'markdown') {
             process.stdout.write(toMarkdownReport(result));
         }

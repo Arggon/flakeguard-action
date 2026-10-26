@@ -1,9 +1,15 @@
+export const REPORT_LIMITATIONS = [
+    'Runs are pooled across every workflow that ran on the commit SHA; workflow, job, and matrix-leg identity are not compared.',
+    'A test is matched by suite::name; a renamed test appears as new and is not linked to its previous identity.',
+    'Only test metadata is stored: no logs, source, secrets, or personal data.',
+];
 export function toJsonReport(result) {
     return {
-        report_version: 1,
+        report_version: 2,
         repository: result.repository,
         commit_sha: result.commitSha,
         runs: result.runs,
+        limitations: REPORT_LIMITATIONS,
         summary: {
             tests: result.summary.tests,
             flaky: result.summary.flaky,
@@ -18,7 +24,7 @@ export function toJsonReport(result) {
             test_name: finding.testName,
             classification: finding.classification,
             evidence: {
-                runs_observed: finding.evidence.runsObserved,
+                observations: finding.evidence.runsObserved,
                 passes: finding.evidence.passes,
                 retried_passes: finding.evidence.retriedPasses,
                 failures: finding.evidence.failures,

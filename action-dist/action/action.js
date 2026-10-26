@@ -2,7 +2,8 @@ import { classifyArtifacts } from '../detector/classify.js';
 import { MalformedArtifactError, parseJunitArtifact } from '../parser/index.js';
 import { toJsonReport } from '../report/json.js';
 import { toMarkdownReport } from '../report/markdown.js';
-import { GitHubApiError, mergeByRun } from './github.js';
+import { mergeByRun } from '../detector/merge.js';
+import { GitHubApiError } from './github.js';
 import { matchesPattern } from './inputs.js';
 import { readZip } from './zip.js';
 export class ActionError extends Error {
@@ -53,6 +54,8 @@ function summaryMarkdown(result, reportDir, runsCompared) {
         `**New (single observation, status shown):** ${newLine}`,
         '',
         `Report: \`${reportDir}/flakeguard-report.json\` and \`${reportDir}/flakeguard-report.md\`.`,
+        '',
+        '> Known limitation: runs are pooled across every workflow and matrix leg for the commit SHA; workflow, job, and matrix identity are not compared.',
         '',
     ].join('\n');
 }
